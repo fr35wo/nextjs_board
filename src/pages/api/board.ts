@@ -2,6 +2,7 @@ import { Board, BoardList } from "../../types/board";
 import { RspTemplate } from "../../types/RspTemplate";
 import { generateAccessToken } from "../api/auth";
 
+//const BASE_URL = "http://10.0.2.2:8091/api/board";
 const BASE_URL = "http://localhost:8091/api/board";
 
 async function handleUnauthorized(res: Response) {
@@ -27,20 +28,27 @@ async function handleUnauthorized(res: Response) {
 }
 
 export async function fetchBoardList(page: number, size: number): Promise<BoardList> {
-    let token = localStorage.getItem("accessToken");
-    let res = await fetch(`${BASE_URL}/list?page=${page}&size=${size}`, {
+    const token = localStorage.getItem("accessToken");
+    const body = JSON.stringify({ page, size });
+    let res = await fetch(`${BASE_URL}/list`, {
+        method: "POST",
         headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
         },
+        body,
     });
 
     if (!res.ok) {
-        token = await handleUnauthorized(res); // 액세스 토큰 만료 처리
+        const token = await handleUnauthorized(res); // 액세스 토큰 만료 처리
         if (token) {
-            res = await fetch(`${BASE_URL}/list?page=${page}&size=${size}`, {
+            res = await fetch(`${BASE_URL}/list`, {
+                method: "POST",
                 headers: {
+                    "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
+                body,
             });
         }
         if (!res.ok) {
@@ -52,6 +60,7 @@ export async function fetchBoardList(page: number, size: number): Promise<BoardL
     const jsonResponse: RspTemplate<BoardList> = await res.json();
     return jsonResponse.data;
 }
+
 
 export async function fetchBoard(boardId: number): Promise<Board> {
     let token = localStorage.getItem("accessToken");

@@ -2,6 +2,7 @@ export interface Board {
     boardId: number;
     title: string;
     contents: string;
+    nickName: string;
 }
 
 export interface BoardList {

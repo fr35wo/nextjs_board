@@ -33,15 +33,20 @@ export default function BoardDetail() {
         router.push(`/form?id=${board?.boardId}`);
     };
 
+    const handleComments = () => {
+        router.push(`/board/${board?.boardId}/comment`);
+    };
+
     if (!board) return <p>Loading...</p>;
 
     return (
         <div>
             <h1>{board.title}</h1>
             <p>{board.contents}</p>
-            <button onClick={() => router.push("/")}>목록으로 돌아가기</button>
+            <button onClick={() => router.push("/board/list")}>목록으로 돌아가기</button>
             <button onClick={handleEdit}>수정</button>
             <button onClick={handleDelete}>삭제</button>
+            <button onClick={handleComments}>댓글 보기</button>
         </div>
     );
 }

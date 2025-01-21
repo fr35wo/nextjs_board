@@ -12,7 +12,6 @@ export default function BoardListPage() {
     useEffect(() => {
         const token = localStorage.getItem("accessToken");
         if (!token) {
-            // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
             alert("로그인이 필요합니다.");
             router.push("/auth");
             return;
@@ -23,11 +22,11 @@ export default function BoardListPage() {
                 setBoards(data.content);
                 setTotalPages(data.totalPages);
             })
-            .catch((error: unknown) => {
+            .catch((error) => {
                 console.error("Failed to fetch board list:", error);
                 setBoards([]);
             });
-    }, [page]);
+    }, [page, router]);
 
     const changePage = (newPage: number) => {
         if (newPage >= 1 && newPage <= totalPages) {
@@ -36,7 +35,7 @@ export default function BoardListPage() {
     };
 
     const getVisiblePages = () => {
-        const groupSize = 10; // 한 번에 표시할 페이지 버튼 수
+        const groupSize = 10;
         const currentGroup = Math.ceil(page / groupSize);
         const startPage = (currentGroup - 1) * groupSize + 1;
         const endPage = Math.min(currentGroup * groupSize, totalPages);
@@ -44,7 +43,7 @@ export default function BoardListPage() {
     };
 
     const handleCreateBoard = () => {
-        router.push("/form"); // 게시글 작성 페이지로 이동
+        router.push("/form");
     };
 
     return (
@@ -57,7 +56,8 @@ export default function BoardListPage() {
                 <ul>
                     {boards.map((board) => (
                         <li key={board.boardId}>
-                            {board.boardId}: <a href={`/board/${board.boardId}`}>{board.title}</a>
+                            {board.nickName}:
+                            <a href={`/board/${board.boardId}`}>{board.title}</a>
                         </li>
                     ))}
                 </ul>

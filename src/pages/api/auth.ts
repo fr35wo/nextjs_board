@@ -1,6 +1,7 @@
 import { RspTemplate } from "../../types/RspTemplate";
 import { JwtToken, SignInReqDto, SignUpReqDto, MemberTokenResDto } from "../../types/auth";
 
+//const BASE_URL = "http://10.0.2.2:8091/api/auth";
 const BASE_URL = "http://localhost:8091/api/auth";
 
 /**
