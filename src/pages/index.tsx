@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { signIn, signUp } from "@/src/pages/api/auth";
-import {fetchBoardList} from "@/src/pages/api/board";
+import { fetchBoardList } from "@/src/pages/api/board";
 
 export default function AuthPage() {
     const router = useRouter();
     const [isSignUp, setIsSignUp] = useState(false);
     const [username, setUsername] = useState("");
+    const [nickname, setNickname] = useState("");
     const [password, setPassword] = useState("");
+    const [passwordCheck, setPasswordCheck] = useState("");
 
     // Android 네이티브 앱에서 저장된 토큰 정보를 가져옴
     useEffect(() => {
         if (window.Android) {
-            const savedTokens = window.Android.getCredentials(); // 네이티브 저장된 토큰 가져오기
+            const savedTokens = window.Android.getCredentials();
             if (savedTokens) {
                 const { accessToken, refreshToken } = JSON.parse(savedTokens);
                 if (accessToken && refreshToken) {
@@ -24,39 +26,30 @@ export default function AuthPage() {
 
     const handleAutoLogin = async () => {
         try {
-            // Access Token으로 게시판 목록 가져오기 시도
-            await fetchBoardList(1, 7); // page: 1, size: 7
-            router.push("/board/list"); // 성공 시 페이지 이동
-        } catch (error) {
-            console.error("자동 로그인 실패:", error);
-            alert("자동 로그인 실패. 로그인 페이지로 이동합니다.");
+            await fetchBoardList(1, 7); // 자동 로그인 시도
+            router.push("/board/list");
+        } catch {
             router.push("/auth"); // 실패 시 로그인 페이지로 이동
         }
     };
 
     const handleAuth = async () => {
-        try {
             if (isSignUp) {
-                await signUp({ username, password });
+                // 비밀번호 일치 여부 확인
+                if (password !== passwordCheck) {
+                    alert("비밀번호가 일치하지 않습니다.");
+                    return;
+                }
+
+                await signUp({ username, nickname, password, passwordCheck });
                 alert("회원가입 성공");
                 setIsSignUp(false);
             } else {
                 const { accessToken, refreshToken } = await signIn({ username, password });
                 localStorage.setItem("accessToken", accessToken);
                 localStorage.setItem("refreshToken", refreshToken);
-
-                // Android 네이티브 앱에도 토큰 저장
-                if (window.Android) {
-                    window.Android.saveToken(accessToken, refreshToken);
-                }
-
-                alert("로그인 성공");
                 router.push("/board/list");
             }
-        } catch (error) {
-            console.error("Auth Error:", error);
-            alert(error instanceof Error ? error.message : "오류 발생");
-        }
     };
 
     return (
@@ -77,6 +70,30 @@ export default function AuthPage() {
                         required
                     />
                 </div>
+
+                {isSignUp && (
+                    <>
+                        <div>
+                            <label>닉네임</label>
+                            <input
+                                type="text"
+                                value={nickname}
+                                onChange={(e) => setNickname(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label>비밀번호 확인</label>
+                            <input
+                                type="password"
+                                value={passwordCheck}
+                                onChange={(e) => setPasswordCheck(e.target.value)}
+                                required
+                            />
+                        </div>
+                    </>
+                )}
+
                 <div>
                     <label>비밀번호</label>
                     <input
@@ -89,6 +106,7 @@ export default function AuthPage() {
 
                 <button type="submit">{isSignUp ? "회원가입" : "로그인"}</button>
             </form>
+
             <div style={{ marginTop: "20px" }}>
                 {isSignUp ? (
                     <p>

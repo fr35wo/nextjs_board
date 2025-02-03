@@ -23,7 +23,7 @@ export default function BoardListPage() {
                 setTotalPages(data.totalPages);
             })
             .catch((error) => {
-                console.error("Failed to fetch board list:", error);
+
                 setBoards([]);
             });
     }, [page, router]);

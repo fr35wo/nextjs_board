@@ -16,7 +16,9 @@ export interface SignInReqDto {
 
 export interface SignUpReqDto {
     username: string;
+    nickname: string;
     password: string;
+    passwordCheck: string;
 }
 
 export interface RefreshTokenReqDto {
